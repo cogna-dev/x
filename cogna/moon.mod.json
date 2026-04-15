@@ -1,9 +1,0 @@
-{
-  "name": "cogna-dev/cogna",
-  "version": "0.1.0",
-  "readme": "README.md",
-  "repository": "https://github.com/cogna-dev/x",
-  "license": "MIT",
-  "keywords": ["cogna", "ascii-art"],
-  "description": "Print the ASCII art for Cogna"
-}

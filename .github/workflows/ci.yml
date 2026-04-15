@@ -10,12 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  ci-cogna:
-    name: cogna — Check / Format / Build / Test
+  ci:
+    name: Check / Format / Build / Test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: cogna
 
     steps:
       - uses: actions/checkout@v4
