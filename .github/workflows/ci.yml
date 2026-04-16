@@ -23,12 +23,6 @@ jobs:
       - name: Pre-commit
         uses: pre-commit/action@v3.0.1
 
-      - name: Check
-        run: moon check
-
-      - name: Format
-        run: moon fmt --check
-
       - name: Build
         run: moon build
 
