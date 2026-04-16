@@ -1,0 +1,3 @@
+import {
+  "cogna-dev/parkit/nom" @nom,
+}
