@@ -8,7 +8,7 @@ pub suberror ParseHclError {
 ///|
 /// Parse HCL text into a typed `Document`.
 pub fn parse(input : String) -> Document raise ParseHclError {
-  match parse_body_until(input, until_end=false) {
+  match parse_body_until(input, false) {
     Ok((rest, body)) => {
       let remaining = skip_trivia(rest)
       if remaining.length() == 0 {
@@ -30,11 +30,11 @@ fn skip_trivia(input : String) -> String {
       Err(_) => (remaining, "")
     }
     remaining = next
-    if remaining.starts_with("#") {
+    if remaining.has_prefix("#") {
       remaining = skip_line_comment(remaining[1:].to_string())
       continue
     }
-    if remaining.starts_with("//") {
+    if remaining.has_prefix("//") {
       remaining = skip_line_comment(remaining[2:].to_string())
       continue
     }
@@ -47,7 +47,10 @@ fn skip_trivia(input : String) -> String {
 fn skip_line_comment(input : String) -> String {
   let mut i = 0
   while i < input.length() {
-    let Some(c) = input.get_char(i) else { return "" }
+    let c = match input.get_char(i) {
+      Some(c) => c
+      None => return ""
+    }
     if c == '\n' {
       return input[i + 1:].to_string()
     }
@@ -91,8 +94,12 @@ fn string_parser() -> @nom.Parser[String] {
     let mut escaped = false
     let mut out = ""
     while i < rest_open.length() {
-      let Some(c) = rest_open.get_char(i) else {
-        return Err(@nom.ParseError::new(rest_open, "unterminated string literal"))
+      let c = match rest_open.get_char(i) {
+        Some(c) => c
+        None =>
+          return Err(
+            @nom.ParseError::new(rest_open, "unterminated string literal"),
+          )
       }
       if escaped {
         let decoded = match c {
@@ -280,7 +287,7 @@ fn parse_item(input : String) -> @nom.IResult[BodyItem] {
         match @nom.char_('{').parse(rest) {
           Ok((after_open, _)) => {
             let (after_body, body) = match
-              parse_body_until(after_open, until_end=true) {
+              parse_body_until(after_open, true) {
               Ok(v) => v
               Err(e) => return Err(e)
             }
@@ -331,5 +338,7 @@ fn parse_body_until(input : String, until_end : Bool) -> @nom.IResult[Body] {
     }
     items.push(item)
     rest = next
+  } else {
+    Err(@nom.ParseError::new(rest, "unexpected end of input"))
   }
 }

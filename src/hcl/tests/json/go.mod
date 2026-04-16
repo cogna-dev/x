@@ -1,4 +1,4 @@
-module cogna-dev/x/reference/hcl-go
+module cogna-dev/x/src/hcl/tests/json
 
 go 1.23.0
 
