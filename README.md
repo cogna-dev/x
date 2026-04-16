@@ -19,3 +19,10 @@ moon check
 moon build
 moon test
 ```
+
+## Reference tests
+
+```sh
+cd reference/hcl-go
+go test ./...
+```
