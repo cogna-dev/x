@@ -286,8 +286,7 @@ fn parse_item(input : String) -> @nom.IResult[BodyItem] {
         rest = skip_trivia(rest)
         match @nom.char_('{').parse(rest) {
           Ok((after_open, _)) => {
-            let (after_body, body) = match
-              parse_body_until(after_open, true) {
+            let (after_body, body) = match parse_body_until(after_open, true) {
               Ok(v) => v
               Err(e) => return Err(e)
             }
