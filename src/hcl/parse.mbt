@@ -1,10 +1,12 @@
 ///|
+/// HCL parse errors from `parse`.
 pub suberror ParseHclError {
   Nom(@nom.ParseError)
   TrailingInput(String)
 } derive(Show)
 
 ///|
+/// Parse HCL text into a typed `Document`.
 pub fn parse(input : String) -> Document raise ParseHclError {
   match parse_body_until(input, until_end=false) {
     Ok((rest, body)) => {
@@ -45,7 +47,8 @@ fn skip_trivia(input : String) -> String {
 fn skip_line_comment(input : String) -> String {
   let mut i = 0
   while i < input.length() {
-    if input.get_char(i).unwrap() == '\n' {
+    let Some(c) = input.get_char(i) else { return "" }
+    if c == '\n' {
       return input[i + 1:].to_string()
     }
     i += 1
@@ -79,11 +82,53 @@ fn identifier_parser() -> @nom.Parser[String] {
 
 ///|
 fn string_parser() -> @nom.Parser[String] {
-  @nom.delimited(
-    @nom.char_('"'),
-    @nom.take_while(fn(c) { c != '"' && c != '\n' && c != '\r' }),
-    @nom.char_('"'),
-  )
+  @nom.Parser::new(fn(input) {
+    let (rest_open, _) = match @nom.char_('"').parse(input) {
+      Ok(v) => v
+      Err(e) => return Err(e)
+    }
+    let mut i = 0
+    let mut escaped = false
+    let mut out = ""
+    while i < rest_open.length() {
+      let Some(c) = rest_open.get_char(i) else {
+        return Err(@nom.ParseError::new(rest_open, "unterminated string literal"))
+      }
+      if escaped {
+        let decoded = match c {
+          '"' => "\""
+          '\\' => "\\"
+          'n' => "\n"
+          'r' => "\r"
+          't' => "\t"
+          _ =>
+            return Err(
+              @nom.ParseError::new(rest_open, "invalid escape sequence"),
+            )
+        }
+        out = out + decoded
+        escaped = false
+        i += 1
+        continue
+      }
+      if c == '\\' {
+        escaped = true
+        i += 1
+        continue
+      }
+      if c == '"' {
+        return Ok((rest_open[i + 1:].to_string(), out))
+      }
+      if c == '\n' || c == '\r' {
+        return Err(
+          @nom.ParseError::new(rest_open, "unterminated string literal"),
+        )
+      }
+      out = out + String::make(1, c)
+      i += 1
+    }
+    Err(@nom.ParseError::new(rest_open, "unterminated string literal"))
+  })
 }
 
 ///|
@@ -159,7 +204,7 @@ fn parse_list(input : String) -> @nom.IResult[Expression] {
           Err(e) => return Err(e)
         }
       }
-      abort("unreachable")
+      Err(@nom.ParseError::new(rest, "expected list terminator"))
     }
   }
 }
@@ -206,7 +251,7 @@ fn parse_object(input : String) -> @nom.IResult[Expression] {
           Err(e) => return Err(e)
         }
       }
-      abort("unreachable")
+      Err(@nom.ParseError::new(rest, "expected object terminator"))
     }
   }
 }
@@ -255,7 +300,7 @@ fn parse_item(input : String) -> @nom.IResult[BodyItem] {
             return Err(@nom.ParseError::new(rest, "expected '=' or block body"))
         }
       }
-      abort("unreachable")
+      Err(@nom.ParseError::new(rest, "expected block body"))
     }
   }
 }
@@ -276,7 +321,7 @@ fn parse_body_until(input : String, until_end : Bool) -> @nom.IResult[Body] {
       return Ok((rest, { items, }))
     }
 
-    if rest.length() == 0 {
+    if until_end && rest.length() == 0 {
       return Err(@nom.ParseError::new(rest, "unexpected end of input"))
     }
 

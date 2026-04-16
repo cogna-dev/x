@@ -1,4 +1,5 @@
 ///|
+/// Parses attributes and nested blocks.
 test "parse attributes and block" {
   let input =
     #|name = "api"
@@ -24,6 +25,7 @@ test "parse attributes and block" {
 }
 
 ///|
+/// Parses collection expressions.
 test "parse list and object values" {
   let input =
     #|numbers = [1, 2, 3]
@@ -49,6 +51,7 @@ test "parse list and object values" {
 }
 
 ///|
+/// Fails on malformed HCL input.
 test "parse error on malformed input" {
   let result = try? @hcl.parse("service { name = \"x\"")
   inspect(result is Err(_), content="true")
