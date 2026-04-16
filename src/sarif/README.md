@@ -5,11 +5,12 @@
 [![Repository](https://img.shields.io/badge/cogna--dev%2Fx-monorepo-1F2937)](https://github.com/cogna-dev/x)
 
 ```text
-   _____    _    ____  ___ _____
-  / ____|  / \  |  _ \|_ _|  ___|
- | (___   / _ \ | |_) || || |_
-  \___ \ / ___ \|  _ < | ||  _|
-  ____) /_/   \_\_| \_\___|_|
+  ███████╗ █████╗ ██████╗ ██╗███████╗
+  ██╔════╝██╔══██╗██╔══██╗██║██╔════╝
+  ███████╗███████║██████╔╝██║█████╗
+  ╚════██║██╔══██║██╔══██╗██║██╔══╝
+  ███████║██║  ██║██║  ██║██║██║
+  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝
 
   2.1.0 | Static MoonBit Types | JSON Encode/Decode
 ```
@@ -30,7 +31,7 @@ MoonBit SARIF package for **typed modeling**, **strict decoding**, and
 
 In MoonBit package configuration:
 
-```moonbit
+```moon
 import {
   "cogna-dev/x/sarif" @sarif,
 }
@@ -38,7 +39,7 @@ import {
 
 ## Core API
 
-```moonbit
+```moon
 pub fn parse(s : String) -> SarifLog raise ParseSarifError
 pub fn stringify(log : SarifLog, indent? : Int) -> String
 ```
@@ -52,7 +53,7 @@ pub fn stringify(log : SarifLog, indent? : Int) -> String
 
 ## Quick start
 
-```moonbit
+```moon
 let source =
   #|{
   #|  "version": "2.1.0",
