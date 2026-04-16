@@ -1,0 +1,5 @@
+# MoonBit build output
+_build/
+
+# Generated TypeScript wrappers (experimental)
+src/**/*.wrapper.ts
