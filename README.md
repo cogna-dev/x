@@ -8,6 +8,7 @@ The experimental monorepo for real-world [MoonBit](https://www.moonbitlang.com/)
 |---------|-------------|
 | [`cogna-dev/x/hcl`](src/hcl/) | HCL parser built with `cogna-dev/parkit/nom` |
 | [`cogna-dev/x/logo`](src/logo/) | Prints the ASCII art for "Cogna" |
+| [`cogna-dev/x/sarif`](src/sarif/) | SARIF 2.1.0 static types with JSON encode/decode |
 
 ## Development
 
