@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: moon-fmt-check
+        name: moon fmt --check
+        entry: moon fmt --check
+        language: system
+        pass_filenames: false
+      - id: moon-check
+        name: moon check
+        entry: moon check
+        language: system
+        pass_filenames: false
