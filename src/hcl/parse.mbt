@@ -338,7 +338,7 @@ fn parse_body_until(input : String, until_end : Bool) -> @nom.IResult[Body] {
     }
     items.push(item)
     rest = next
-  } else {
-    Err(@nom.ParseError::new(rest, "unexpected end of input"))
+  } nobreak {
+    Ok((rest, { items, }))
   }
 }
