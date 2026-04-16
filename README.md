@@ -6,6 +6,7 @@ The experimental monorepo for real-world [MoonBit](https://www.moonbitlang.com/)
 
 | Package | Description |
 |---------|-------------|
+| [`cogna-dev/x/hcl`](src/hcl/) | HCL parser built with `cogna-dev/parkit/nom` |
 | [`cogna-dev/x/logo`](src/logo/) | Prints the ASCII art for "Cogna" |
 
 ## Development
@@ -18,3 +19,4 @@ moon check
 moon build
 moon test
 ```
+
