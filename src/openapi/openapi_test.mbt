@@ -108,17 +108,26 @@ test "parse minimal petstore" {
     #|  }
     #|}
   let doc = @openapi.parse(json)
-  inspect(doc.openapi, content=(
-    #|3.1.0
-  ))
-  inspect(doc.info.title, content=(
-    #|Petstore
-  ))
-  inspect(doc.info.version, content=(
-    #|1.0.0
-  ))
+  inspect(
+    doc.openapi,
+    content=(
+      #|3.1.0
+    ),
+  )
+  inspect(
+    doc.info.title,
+    content=(
+      #|Petstore
+    ),
+  )
+  inspect(
+    doc.info.version,
+    content=(
+      #|1.0.0
+    ),
+  )
   // paths exist
-  let paths = doc.paths.unwrap()
+  let paths = doc.paths
   inspect(paths.contains("/pets"), content="true")
   inspect(paths.contains("/pets/{petId}"), content="true")
   // GET /pets has the right operation id
@@ -131,12 +140,15 @@ test "parse minimal petstore" {
   guard param is @openapi.ParameterOrRef::ParameterValue(p) else {
     fail("expected ParameterValue")
   }
-  inspect(p.name, content=(
-    #|limit
-  ))
+  inspect(
+    p.name,
+    content=(
+      #|limit
+    ),
+  )
   inspect(p.in_, content="Query")
   // 200 response
-  let responses = list_op.responses.unwrap()
+  let responses = list_op.responses
   inspect(responses.by_status.contains("200"), content="true")
   // components schemas
   let components = doc.components.unwrap()
@@ -159,9 +171,21 @@ test "parse error on invalid json" {
 
 ///|
 test "parse error on wrong structure" {
-  // Valid JSON but missing required 'info' field
-  let minimal = #|{"openapi":"3.1.0"}
+  // Valid JSON but missing required 'info' and 'paths' fields
+  let minimal =
+    #|{"openapi":"3.1.0"}
   let result = try? @openapi.parse(minimal)
+  inspect(result is Err(_), content="true")
+}
+
+///|
+test "parse error when required paths missing" {
+  let json =
+    #|{
+    #|  "openapi": "3.1.0",
+    #|  "info": { "title": "No paths", "version": "1.0.0" }
+    #|}
+  let result = try? @openapi.parse(json)
   inspect(result is Err(_), content="true")
 }
 
@@ -171,6 +195,7 @@ test "security requirement round-trip" {
     #|{
     #|  "openapi": "3.1.0",
     #|  "info": { "title": "Secure API", "version": "1.0.0" },
+    #|  "paths": {},
     #|  "security": [
     #|    { "bearerAuth": [] },
     #|    { "apiKey": ["read", "write"] }
@@ -198,6 +223,7 @@ test "parse $ref in schema" {
     #|{
     #|  "openapi": "3.1.0",
     #|  "info": { "title": "RefTest", "version": "0.1.0" },
+    #|  "paths": {},
     #|  "components": {
     #|    "schemas": {
     #|      "Widget": {
@@ -217,7 +243,28 @@ test "parse $ref in schema" {
   guard schemas["Widget"] is @openapi.SchemaOrRef::Ref(ref_obj) else {
     fail("expected Ref for Widget")
   }
-  inspect(ref_obj.ref_, content=(
-    #|#/components/schemas/Base
-  ))
+  inspect(
+    ref_obj.ref_,
+    content=(
+      #|#/components/schemas/Base
+    ),
+  )
+}
+
+///|
+test "parse error when operation responses missing" {
+  let json =
+    #|{
+    #|  "openapi": "3.1.0",
+    #|  "info": { "title": "Missing responses", "version": "1.0.0" },
+    #|  "paths": {
+    #|    "/pets": {
+    #|      "get": {
+    #|        "operationId": "listPets"
+    #|      }
+    #|    }
+    #|  }
+    #|}
+  let result = try? @openapi.parse(json)
+  inspect(result is Err(_), content="true")
 }

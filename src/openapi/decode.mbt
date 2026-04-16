@@ -10,14 +10,8 @@ pub suberror ParseOpenApiError {
 ///|
 /// Parse an OpenAPI 3.1 JSON string into an `OpenApiDocument`.
 pub fn parse(s : String) -> OpenApiDocument raise ParseOpenApiError {
-  let json = try {
-    @json.parse(s)
-  } catch {
-    e => raise ParseOpenApiError::JsonParse(e)
-  }
-  try {
-    @json.from_json(json)
-  } catch {
+  let json = @json.parse(s) catch { e => raise ParseOpenApiError::JsonParse(e) }
+  @json.from_json(json) catch {
     e => raise ParseOpenApiError::JsonDecode(e)
   }
 }
@@ -26,10 +20,11 @@ pub fn parse(s : String) -> OpenApiDocument raise ParseOpenApiError {
 // Helpers
 // ---------------------------------------------------------------------------
 
+///|
 fn[T : @json.FromJson] get_opt(
   obj : Map[String, Json],
   key : String,
-  path : @json.JsonPath
+  path : @json.JsonPath,
 ) -> T? raise @json.JsonDecodeError {
   match obj.get(key) {
     None | Some(Null) => None
@@ -37,10 +32,11 @@ fn[T : @json.FromJson] get_opt(
   }
 }
 
+///|
 fn[T : @json.FromJson] get_req(
   obj : Map[String, Json],
   key : String,
-  path : @json.JsonPath
+  path : @json.JsonPath,
 ) -> T raise @json.JsonDecodeError {
   match obj.get(key) {
     None | Some(Null) =>
@@ -63,7 +59,7 @@ impl @json.FromJson for OpenApiDocument with from_json(json, path) {
     info: get_req(obj, "info", path),
     json_schema_dialect: get_opt(obj, "jsonSchemaDialect", path),
     servers: get_opt(obj, "servers", path),
-    paths: get_opt(obj, "paths", path),
+    paths: get_req(obj, "paths", path),
     webhooks: get_opt(obj, "webhooks", path),
     components: get_opt(obj, "components", path),
     security: get_opt(obj, "security", path),
@@ -223,7 +219,7 @@ impl @json.FromJson for Operation with from_json(json, path) {
     operation_id: get_opt(obj, "operationId", path),
     parameters: get_opt(obj, "parameters", path),
     request_body: get_opt(obj, "requestBody", path),
-    responses: get_opt(obj, "responses", path),
+    responses: get_req(obj, "responses", path),
     callbacks: get_opt(obj, "callbacks", path),
     deprecated: get_opt(obj, "deprecated", path),
     security: get_opt(obj, "security", path),

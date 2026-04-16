@@ -9,7 +9,7 @@ pub(all) struct OpenApiDocument {
   info : Info
   json_schema_dialect : String?
   servers : Array[Server]?
-  paths : Map[String, PathItem]?
+  paths : Map[String, PathItem]
   webhooks : Map[String, PathItemOrRef]?
   components : Components?
   security : Array[SecurityRequirement]?
@@ -88,7 +88,7 @@ pub(all) struct Operation {
   operation_id : String?
   parameters : Array[ParameterOrRef]?
   request_body : RequestBodyOrRef?
-  responses : Responses?
+  responses : Responses
   callbacks : Map[String, CallbackOrRef]?
   deprecated : Bool?
   security : Array[SecurityRequirement]?
@@ -386,7 +386,4 @@ pub(all) struct OAuthFlow {
 
 ///|
 /// SecurityRequirement: map from scheme name to list of scopes.
-pub(all) struct SecurityRequirement(Map[String, Array[String]]) derive(
-  Show,
-  Eq,
-)
+pub(all) struct SecurityRequirement(Map[String, Array[String]]) derive(Show, Eq)
