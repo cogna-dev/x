@@ -1,4 +1,4 @@
-package hclgo
+package hclgo_test
 
 import (
 	"testing"
