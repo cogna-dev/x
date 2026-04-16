@@ -38,7 +38,10 @@ test "parse and stringify minimal SARIF log" {
     #|}
   let log = @sarif.parse(source)
   inspect(log.version, content="2.1.0")
-  inspect(log.schema, content="Some(\"https://json.schemastore.org/sarif-2.1.0.json\")")
+  inspect(
+    log.schema,
+    content="Some(\"https://json.schemastore.org/sarif-2.1.0.json\")",
+  )
   inspect(log.runs.length(), content="1")
   let run = log.runs[0]
   inspect(run.tool.driver.name, content="demo-linter")

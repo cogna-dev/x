@@ -51,7 +51,11 @@ fn[T : @json.FromJson] get_req(
 }
 
 ///|
-fn[T : ToJson] put_opt(obj : Map[String, Json], key : String, value : T?) -> Unit {
+fn[T : ToJson] put_opt(
+  obj : Map[String, Json],
+  key : String,
+  value : T?,
+) -> Unit {
   if value is Some(v) {
     obj[key] = v.to_json()
   }
@@ -492,7 +496,9 @@ impl ToJson for VersionControlDetails with to_json(self) {
 ///|
 impl @json.FromJson for VersionControlDetails with from_json(json, path) {
   guard json is Object(obj) else {
-    raise @json.JsonDecodeError((path, "VersionControlDetails: expected object"))
+    raise @json.JsonDecodeError(
+      (path, "VersionControlDetails: expected object"),
+    )
   }
   {
     repository_uri: get_opt(obj, "repositoryUri", path),
@@ -515,10 +521,9 @@ impl ToJson for MultiformatMessageString with to_json(self) {
 ///|
 impl @json.FromJson for MultiformatMessageString with from_json(json, path) {
   guard json is Object(obj) else {
-    raise @json.JsonDecodeError((path, "MultiformatMessageString: expected object"))
+    raise @json.JsonDecodeError(
+      (path, "MultiformatMessageString: expected object"),
+    )
   }
-  {
-    text: get_opt(obj, "text", path),
-    markdown: get_opt(obj, "markdown", path),
-  }
+  { text: get_opt(obj, "text", path), markdown: get_opt(obj, "markdown", path) }
 }
