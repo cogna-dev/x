@@ -20,9 +20,3 @@ moon build
 moon test
 ```
 
-## Reference tests
-
-```sh
-cd src/hcl/tests/json
-go run .
-```

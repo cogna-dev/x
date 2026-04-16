@@ -1,8 +1,0 @@
-import {
-  "cogna-dev/x/hcl" @hcl,
-  "moonbitlang/core/json",
-}
-
-options(
-  "is-main": true,
-)
