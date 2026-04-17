@@ -341,7 +341,7 @@ fn parse_item(input : String, full_source : String) -> @nom.IResult[BodyItem] {
 fn parse_body_until(
   input : String,
   until_end : Bool,
-  full_source : String
+  full_source : String,
 ) -> @nom.IResult[Body] {
   let items : Array[BodyItem] = []
   let mut rest = skip_trivia(input)
