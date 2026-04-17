@@ -20,4 +20,4 @@ jobs:
         uses: cogna-dev/moonbit-actions/setup@v0
 
       - name: Generate documentation
-        uses: cogna/moonbit-actions/document@v0
+        uses: cogna-dev/moonbit-actions/document@v0
