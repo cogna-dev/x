@@ -1,5 +1,5 @@
 ///|
-/// 1-based source position.
+/// 1-based source position in the parsed HCL input (`line`, `col`).
 pub(all) struct Position {
   line : Int
   col : Int

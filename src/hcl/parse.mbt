@@ -60,7 +60,11 @@ fn skip_line_comment(input : String) -> String {
 }
 
 ///|
+/// Compute a 1-based `(line, col)` by comparing full `source` and current `rest`.
 fn source_position(source : String, rest : String) -> Position {
+  if source.length() < rest.length() {
+    return { line: 1, col: 1 }
+  }
   let consumed = source.length() - rest.length()
   let mut i = 0
   let mut line = 1
@@ -68,7 +72,7 @@ fn source_position(source : String, rest : String) -> Position {
   while i < consumed {
     let c = match source.get_char(i) {
       Some(c) => c
-      None => break
+      None => return { line, col }
     }
     if c == '\n' {
       line += 1
