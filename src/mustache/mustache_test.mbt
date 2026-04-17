@@ -38,7 +38,7 @@ fn run_with_partials(
   expected : String,
   partials : Map[String, String],
 ) -> Unit raise Failure {
-  let actual = @mustache.render(template, data, partials=partials)
+  let actual = @mustache.render(template, data, partials~)
   if actual != expected {
     fail("expected: " + expected + "\nactual: " + actual)
   }
@@ -47,7 +47,11 @@ fn run_with_partials(
 ///|
 test "official interpolation spec cases" {
   // Source: https://github.com/mustache/spec/blob/master/specs/interpolation.json
-  run("Hello, {{subject}}!\n", obj({ "subject": str("world") }), "Hello, world!\n")
+  run(
+    "Hello, {{subject}}!\n",
+    obj({ "subject": str("world") }),
+    "Hello, world!\n",
+  )
   run(
     "These characters should be HTML escaped: {{forbidden}}\n",
     obj({ "forbidden": str("& \" < >") }),
@@ -63,7 +67,11 @@ test "official interpolation spec cases" {
     obj({ "person": obj({ "name": str("Joe") }) }),
     "\"Joe\" == \"Joe\"",
   )
-  run("I ({{cannot}}) be seen!", obj({ "cannot": Json::null() }), "I () be seen!")
+  run(
+    "I ({{cannot}}) be seen!",
+    obj({ "cannot": Json::null() }),
+    "I () be seen!",
+  )
 }
 
 ///|
@@ -139,12 +147,9 @@ test "official comments and delimiters spec cases" {
 ///|
 test "official partials spec cases" {
   // Source: https://github.com/mustache/spec/blob/master/specs/partials.json
-  run_with_partials(
-    "\"{{>text}}\"",
-    obj({}),
-    "\"from partial\"",
-    { "text": "from partial" },
-  )
+  run_with_partials("\"{{>text}}\"", obj({}), "\"from partial\"", {
+    "text": "from partial",
+  })
   run_with_partials(
     "\"{{>partial}}\"",
     obj({ "text": str("content") }),

@@ -7,7 +7,11 @@ enum Node {
 } derive(Debug, Eq)
 
 ///|
-pub fn render(template : String, data : Json, partials? : Map[String, String]) -> String {
+pub fn render(
+  template : String,
+  data : Json,
+  partials? : Map[String, String],
+) -> String {
   let partial_map = match partials {
     Some(p) => p
     None => {}
@@ -60,7 +64,10 @@ fn parse_nodes(
           return (nodes, template.length(), open, close, false)
         }
       }
-      let name = template[content_start:triple_end].to_string().trim().to_string()
+      let name = template[content_start:triple_end]
+        .to_string()
+        .trim()
+        .to_string()
       nodes.push(Node::Variable(name, false))
       pos = triple_end + 3
       continue
@@ -87,9 +94,10 @@ fn parse_nodes(
     }
     match head {
       '!' => continue
-      '&' => {
-        nodes.push(Node::Variable(tag[1:].to_string().trim().to_string(), false))
-      }
+      '&' =>
+        nodes.push(
+          Node::Variable(tag[1:].to_string().trim().to_string(), false),
+        )
       '#' => {
         let name = tag[1:].to_string().trim().to_string()
         let (children, next_pos, next_open, next_close, _) = parse_nodes(
@@ -126,12 +134,13 @@ fn parse_nodes(
           _ => nodes.push(Node::Text(template[next_open:pos].to_string()))
         }
       }
-      '>' => {
-        nodes.push(Node::Partial(tag[1:].to_string().trim().to_string()))
-      }
-      '=' => {
+      '>' => nodes.push(Node::Partial(tag[1:].to_string().trim().to_string()))
+      '=' =>
         if tag.has_suffix("=") {
-          match parse_delimiters(tag[1:tag.length() - 1].to_string().trim().to_string()) {
+          match
+            parse_delimiters(
+              tag[1:tag.length() - 1].to_string().trim().to_string(),
+            ) {
             Some((next_open, next_close)) => {
               open = next_open
               close = next_close
@@ -139,7 +148,6 @@ fn parse_nodes(
             None => ()
           }
         }
-      }
       _ => nodes.push(Node::Variable(tag, true))
     }
   }
@@ -214,25 +222,25 @@ fn render_nodes(
           }
         } else {
           match value {
-            Some(Array(items)) => {
+            Some(Array(items)) =>
               for item in items {
                 stack.push(item)
-                out = out + render_nodes(children, stack, partials, parsed_partials)
+                out = out +
+                  render_nodes(children, stack, partials, parsed_partials)
                 ignore(stack.pop())
               }
-            }
-            Some(v) => {
+            Some(v) =>
               if is_truthy(v) {
                 stack.push(v)
-                out = out + render_nodes(children, stack, partials, parsed_partials)
+                out = out +
+                  render_nodes(children, stack, partials, parsed_partials)
                 ignore(stack.pop())
               }
-            }
             None => ()
           }
         }
       }
-      Node::Partial(name) => {
+      Node::Partial(name) =>
         match partials.get(name) {
           Some(partial) => {
             let partial_nodes = match parsed_partials.get(name) {
@@ -243,16 +251,11 @@ fn render_nodes(
                 parsed
               }
             }
-            out = out + render_nodes(
-              partial_nodes,
-              stack,
-              partials,
-              parsed_partials,
-            )
+            out = out +
+              render_nodes(partial_nodes, stack, partials, parsed_partials)
           }
           None => ()
         }
-      }
     }
   }
   out
