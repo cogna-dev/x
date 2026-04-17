@@ -1,7 +1,9 @@
 ///|
 /// 1-based source position in the parsed HCL input (`line`, `col`).
 pub(all) struct Position {
+  /// 1-based line index.
   line : Int
+  /// 1-based column index.
   col : Int
 } derive(Show, Eq)
 
