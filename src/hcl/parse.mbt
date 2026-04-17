@@ -8,7 +8,7 @@ pub suberror ParseHclError {
 ///|
 /// Parse HCL text into a typed `Document`.
 pub fn parse(input : String) -> Document raise ParseHclError {
-  match parse_body_until(input, false) {
+  match parse_body_until(input, false, input) {
     Ok((rest, body)) => {
       let remaining = skip_trivia(rest)
       if remaining.length() == 0 {
@@ -57,6 +57,27 @@ fn skip_line_comment(input : String) -> String {
     i += 1
   }
   ""
+}
+
+///|
+/// Compute a 1-based `(line, col)` from full `source` and current `rest`.
+/// `rest` is expected to be a suffix produced by the parser from `source`.
+fn source_position(source : String, rest : String) -> Position {
+  let consumed = source.length() - rest.length()
+  let mut i = 0
+  let mut line = 1
+  let mut col = 1
+  while i < consumed {
+    let c = source.get_char(i).unwrap()
+    if c == '\n' {
+      line += 1
+      col = 1
+    } else {
+      col += 1
+    }
+    i += 1
+  }
+  { line, col }
 }
 
 ///|
@@ -264,8 +285,9 @@ fn parse_object(input : String) -> @nom.IResult[Expression] {
 }
 
 ///|
-fn parse_item(input : String) -> @nom.IResult[BodyItem] {
+fn parse_item(input : String, full_source : String) -> @nom.IResult[BodyItem] {
   let source = skip_trivia(input)
+  let pos = source_position(full_source, source)
   let (rest_head, item_type) = match identifier_parser().parse(source) {
     Ok(v) => v
     Err(e) => return Err(e)
@@ -278,7 +300,7 @@ fn parse_item(input : String) -> @nom.IResult[BodyItem] {
         Ok(v) => v
         Err(e) => return Err(e)
       }
-      Ok((next, BodyItem::Attribute({ key: item_type, value })))
+      Ok((next, BodyItem::Attribute({ key: item_type, value, pos })))
     }
     Err(_) => {
       let labels : Array[String] = []
@@ -286,12 +308,16 @@ fn parse_item(input : String) -> @nom.IResult[BodyItem] {
         rest = skip_trivia(rest)
         match @nom.char_('{').parse(rest) {
           Ok((after_open, _)) => {
-            let (after_body, body) = match parse_body_until(after_open, true) {
+            let (after_body, body) = match
+              parse_body_until(after_open, true, full_source) {
               Ok(v) => v
               Err(e) => return Err(e)
             }
             return Ok(
-              (after_body, BodyItem::Block({ type_: item_type, labels, body })),
+              (
+                after_body,
+                BodyItem::Block({ type_: item_type, labels, body, pos }),
+              ),
             )
           }
           Err(_) => ()
@@ -312,7 +338,11 @@ fn parse_item(input : String) -> @nom.IResult[BodyItem] {
 }
 
 ///|
-fn parse_body_until(input : String, until_end : Bool) -> @nom.IResult[Body] {
+fn parse_body_until(
+  input : String,
+  until_end : Bool,
+  full_source : String,
+) -> @nom.IResult[Body] {
   let items : Array[BodyItem] = []
   let mut rest = skip_trivia(input)
 
@@ -331,7 +361,7 @@ fn parse_body_until(input : String, until_end : Bool) -> @nom.IResult[Body] {
       return Err(@nom.ParseError::new(rest, "unexpected end of input"))
     }
 
-    let (next, item) = match parse_item(rest) {
+    let (next, item) = match parse_item(rest, full_source) {
       Ok(v) => v
       Err(e) => return Err(e)
     }

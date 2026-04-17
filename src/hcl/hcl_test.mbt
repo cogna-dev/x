@@ -15,6 +15,8 @@ test "parse attributes and block" {
   }
   inspect(attr0.key, content="name")
   inspect(attr0.value, content="String(\"api\")")
+  inspect(attr0.pos.line, content="1")
+  inspect(attr0.pos.col, content="1")
 
   guard doc.body.items[2] is @hcl.BodyItem::Block(block) else {
     fail("expected block")
@@ -22,6 +24,14 @@ test "parse attributes and block" {
   inspect(block.type_, content="service")
   inspect(block.labels, content="[\"backend\"]")
   inspect(block.body.items.length(), content="1")
+  inspect(block.pos.line, content="3")
+  inspect(block.pos.col, content="1")
+
+  guard block.body.items[0] is @hcl.BodyItem::Attribute(port) else {
+    fail("expected nested attribute")
+  }
+  inspect(port.pos.line, content="4")
+  inspect(port.pos.col, content="3")
 }
 
 ///|
