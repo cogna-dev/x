@@ -1,6 +1,6 @@
 {
   "name": "cogna-dev/x",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "deps": {
     "cogna-dev/parkit": "0.1.1"
   },
