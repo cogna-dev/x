@@ -47,6 +47,7 @@ pub(all) struct Block {
 /// HCL expression values parsed by this package.
 pub(all) enum Expression {
   String(String)
+  MustacheTemplate(String)
   Number(Double)
   Bool(Bool)
   Null

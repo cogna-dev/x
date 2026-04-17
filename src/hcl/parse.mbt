@@ -160,6 +160,40 @@ fn string_parser() -> @nom.Parser[String] {
 }
 
 ///|
+fn mustache_template_parser() -> @nom.Parser[String] {
+  @nom.Parser::new(fn(input) {
+    let (rest_left, _) = match @nom.char_('{').parse(input) {
+      Ok(v) => v
+      Err(e) => return Err(e)
+    }
+    let (rest_open, _) = match @nom.char_('{').parse(rest_left) {
+      Ok(v) => v
+      Err(e) => return Err(e)
+    }
+    let mut i = 0
+    let mut out = ""
+    while i < rest_open.length() {
+      let c = match rest_open.get_char(i) {
+        Some(c) => c
+        None =>
+          return Err(
+            @nom.ParseError::new(rest_open, "unterminated mustache template"),
+          )
+      }
+      if c == '}' && i + 1 < rest_open.length() {
+        match rest_open.get_char(i + 1) {
+          Some('}') => return Ok((rest_open[i + 2:].to_string(), out))
+          _ => ()
+        }
+      }
+      out = out + String::make(1, c)
+      i += 1
+    }
+    Err(@nom.ParseError::new(rest_open, "unterminated mustache template"))
+  })
+}
+
+///|
 fn key_parser() -> @nom.Parser[String] {
   @nom.alt([string_parser(), identifier_parser()])
 }
@@ -175,6 +209,14 @@ fn parse_value(input : String) -> @nom.IResult[Expression] {
   }
 
   match @nom.map(@nom.double(), fn(v) { Expression::Number(v) }).parse(source) {
+    Ok(v) => return Ok(v)
+    Err(_) => ()
+  }
+
+  match
+    @nom.map(mustache_template_parser(), fn(v) {
+      Expression::MustacheTemplate(v)
+    }).parse(source) {
     Ok(v) => return Ok(v)
     Err(_) => ()
   }

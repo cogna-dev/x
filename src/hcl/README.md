@@ -24,6 +24,7 @@ Typed HCL syntax parser for MoonBit, implemented with `cogna-dev/parkit/nom`.
 - Nested bodies (recursive block parsing)
 - Expressions:
   - string
+  - mustache template (`{{ ... }}`)
   - number
   - bool
   - null

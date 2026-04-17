@@ -66,3 +66,19 @@ test "parse error on malformed input" {
   let result = try? @hcl.parse("service { name = \"x\"")
   inspect(result is Err(_), content="true")
 }
+
+///|
+test "parse mustache template value" {
+  let input =
+    #|image = {{ repository }}
+  let doc = @hcl.parse(input)
+  guard doc.body.items[0] is @hcl.BodyItem::Attribute(image) else {
+    fail("expected image attribute")
+  }
+  inspect(
+    image.value,
+    content=(
+      #|MustacheTemplate(" repository ")
+    ),
+  )
+}
