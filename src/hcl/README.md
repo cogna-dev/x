@@ -61,8 +61,8 @@ match @hcl.parse(input) {
 - `Document` → root HCL document
 - `Body` → sequence of `BodyItem`
 - `BodyItem` → `Attribute` or `Block`
-- `Attribute` → `name` + `Expression`
-- `Block` → `type_` + `labels` + nested `Body`
+- `Attribute` → `name` + `Expression` + `pos` (`line`, `col`)
+- `Block` → `type_` + `labels` + nested `Body` + `pos` (`line`, `col`)
 - `Expression` → scalar/collection/identifier node kinds
 
 ## Notes
